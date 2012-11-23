@@ -31,8 +31,6 @@ public class CompileHandler {
     private ProcessBuilder builder;
     private LinkedList<String> oopsFiles = new LinkedList<String>();
 
-    //Liste zum Aufräumen
-    private LinkedList<Process> processes = new LinkedList<Process>();
    /**
     * Konstruktor
     * @param cfgHandler cfgHandler, zum laden und setzen von Attributen.
@@ -60,7 +58,6 @@ public class CompileHandler {
         }
         try {
             compileProcess = builder.start();
-            processes.add(compileProcess);
             Scanner es = new Scanner( compileProcess.getErrorStream()).useDelimiter( "\\Z" );
             Scanner os = new Scanner( compileProcess.getInputStream()).useDelimiter( "\\Z" );
             outputConsole = new ConsoleHandler(os, jPane, Color.ORANGE);
@@ -204,7 +201,6 @@ public class CompileHandler {
         }
         try {
             compileProcess = builder.start();
-            processes.add(compileProcess);
             Scanner errorStream = new Scanner( compileProcess.getErrorStream()).useDelimiter( "\\Z" );
             Scanner outputStream = new Scanner( compileProcess.getInputStream()).useDelimiter( "\\Z" );
             errorConsole = new ConsoleHandler(errorStream, jPane, Color.RED);
@@ -226,17 +222,6 @@ public class CompileHandler {
                  deadConsole.write("ERROR Can't exec:"+fileName,Color.RED,attr);
              }
 
-        }
-    }
-    
-    public boolean closeProcesses(){
-        if(processes.isEmpty()){
-            return false;
-        }else{
-            for(Process p : processes){
-                p.destroy();
-            }
-            return true;
         }
     }
 }

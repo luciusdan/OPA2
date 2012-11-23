@@ -27,8 +27,6 @@ public class ExecHandler {
     
     LinkedList<String> oopsFiles = new LinkedList<String>();
     
-    LinkedList<Process> processes = new LinkedList<Process>();
-    
     BufferedWriter writeStream;
     public ExecHandler(ConfigHandler cfgHandler, JEditorPane jPane, LinkedList<String> files){
         this.cfgHandler = cfgHandler;
@@ -64,7 +62,6 @@ public class ExecHandler {
             builder.command(cmd);
             try {
                 execProcess = builder.start();
-                processes.add(execProcess);
                 writeStream = new BufferedWriter(new OutputStreamWriter(execProcess.getOutputStream()));
                 Scanner es = new Scanner( execProcess.getErrorStream()).useDelimiter( "\\z" );
                 Scanner os = new Scanner( execProcess.getInputStream()).useDelimiter( "\\z" );
@@ -121,7 +118,6 @@ public class ExecHandler {
                 builder.command(cmd);
                 try {
                     execProcess = builder.start();
-                    processes.add(execProcess);
                     Scanner es = new Scanner( execProcess.getErrorStream()).useDelimiter( "\\z" );
                     Scanner outputStream = new Scanner( execProcess.getInputStream()).useDelimiter( "\\z" );
                     errorConsole = new ConsoleHandler(es, jPane, Color.RED);
@@ -169,16 +165,5 @@ public class ExecHandler {
         }
         cmd.add(fileName+cfgHandler.getAttribute("KOMPILE_NAME"));
         return cmd;
-    }
-    
-    public boolean closeProcesses(){
-        if(processes.isEmpty()){
-            return false;
-        }else{
-            for(Process p : processes){
-                p.destroy();
-            }
-            return true;
-        }
     }
 }
