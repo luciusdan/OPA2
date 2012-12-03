@@ -2,16 +2,20 @@
 
 <Form version="1.3" maxVersion="1.8" type="org.netbeans.modules.form.forminfo.JFrameFormInfo">
   <NonVisualComponents>
-    <Component class="javax.swing.JFileChooser" name="fileChooser">
-      <Properties>
-        <Property name="fileSelectionMode" type="int" value="1"/>
-      </Properties>
-    </Component>
     <Component class="javax.swing.ButtonGroup" name="asBG">
     </Component>
     <Component class="javax.swing.ButtonGroup" name="r2BG">
     </Component>
     <Component class="javax.swing.ButtonGroup" name="r4BG">
+    </Component>
+    <Component class="javax.swing.JFileChooser" name="oopscFileChooser">
+    </Component>
+    <Component class="javax.swing.JFileChooser" name="oopsvmFileChooser">
+    </Component>
+    <Component class="javax.swing.JFileChooser" name="elseFileChooser">
+      <Properties>
+        <Property name="fileSelectionMode" type="int" value="1"/>
+      </Properties>
     </Component>
   </NonVisualComponents>
   <Properties>
@@ -157,7 +161,7 @@
                           <Component id="toVMButton" alignment="3" min="-2" max="-2" attributes="0"/>
                           <Component id="toVMText" alignment="3" min="-2" max="-2" attributes="0"/>
                       </Group>
-                      <EmptySpace pref="100" max="32767" attributes="0"/>
+                      <EmptySpace pref="104" max="32767" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>
@@ -283,7 +287,7 @@
                       <Component id="oopscLabel" min="-2" max="-2" attributes="0"/>
                       <EmptySpace type="unrelated" max="-2" attributes="0"/>
                       <Component id="ereignissPanel" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace pref="128" max="32767" attributes="0"/>
+                      <EmptySpace pref="132" max="32767" attributes="0"/>
                       <Group type="103" groupAlignment="3" attributes="0">
                           <Component id="toOCPanel" alignment="3" min="-2" max="-2" attributes="0"/>
                           <Component id="toOCText" alignment="3" min="-2" max="-2" attributes="0"/>
@@ -436,7 +440,7 @@
                 <Component class="javax.swing.JSpinner" name="ssButton">
                   <Properties>
                     <Property name="value" type="java.lang.Object" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
-                      <Connection code="50&#xd;&#xa;" type="code"/>
+                      <Connection code="100&#xd;&#xa;" type="code"/>
                     </Property>
                   </Properties>
                   <Events>
@@ -477,14 +481,10 @@
           <Layout>
             <DimensionLayout dim="0">
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Group type="102" alignment="0" attributes="0">
+                  <Group type="102" attributes="0">
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
-                          <Component id="manuellVMPanel" pref="326" max="32767" attributes="0"/>
-                          <Group type="102" attributes="0">
-                              <Component id="onlyButton" min="-2" max="-2" attributes="0"/>
-                              <EmptySpace min="0" pref="227" max="32767" attributes="0"/>
-                          </Group>
+                          <Component id="manuellVMPanel" alignment="0" pref="326" max="32767" attributes="0"/>
                           <Component id="assPanel" alignment="0" max="32767" attributes="0"/>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
@@ -497,10 +497,8 @@
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="manuellVMPanel" min="-2" pref="150" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="onlyButton" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace max="-2" attributes="0"/>
                       <Component id="assPanel" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace pref="63" max="32767" attributes="0"/>
+                      <EmptySpace pref="88" max="32767" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>
@@ -880,14 +878,6 @@
                 </Component>
               </SubComponents>
             </Container>
-            <Component class="javax.swing.JCheckBox" name="onlyButton">
-              <Properties>
-                <Property name="text" type="java.lang.String" value="nur &#xdc;bersetzen"/>
-              </Properties>
-              <Events>
-                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="onlyButtonActionPerformed"/>
-              </Events>
-            </Component>
           </SubComponents>
         </Container>
       </SubComponents>
