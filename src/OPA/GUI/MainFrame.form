@@ -34,7 +34,7 @@
                 <Property name="text" type="java.lang.String" value="Datei &#xf6;ffnen..."/>
               </Properties>
               <Events>
-                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="openMenuButtonActionPerformed"/>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="afterFileSelectAction"/>
               </Events>
             </MenuItem>
             <MenuItem class="javax.swing.JPopupMenu$Separator" name="closeSeparator">
@@ -44,7 +44,7 @@
                 <Property name="text" type="java.lang.String" value="Beenden"/>
               </Properties>
               <Events>
-                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="closMenuButtonActionPerformed"/>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="closeingAction"/>
               </Events>
             </MenuItem>
           </SubComponents>
@@ -53,6 +53,9 @@
           <Properties>
             <Property name="text" type="java.lang.String" value="Compilieren"/>
           </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="oopscCompileAction"/>
+          </Events>
           <SubComponents>
             <MenuItem class="javax.swing.JMenuItem" name="cOCMenuButton">
               <Properties>
@@ -61,9 +64,6 @@
                 </Property>
                 <Property name="text" type="java.lang.String" value="compiliere OOPSC"/>
               </Properties>
-              <Events>
-                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="cOCMenuButtonActionPerformed"/>
-              </Events>
             </MenuItem>
             <MenuItem class="javax.swing.JMenuItem" name="cOVMMenuButton">
               <Properties>
@@ -73,7 +73,7 @@
                 <Property name="text" type="java.lang.String" value="compiliere OOPSVM"/>
               </Properties>
               <Events>
-                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="cOVMMenuButtonActionPerformed"/>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="oopsvmCompileAction"/>
               </Events>
             </MenuItem>
           </SubComponents>
@@ -91,7 +91,7 @@
                 <Property name="text" type="java.lang.String" value="Optionen"/>
               </Properties>
               <Events>
-                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="optionMenubuttonActionPerformed"/>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="showOptionAction"/>
               </Events>
             </MenuItem>
             <MenuItem class="javax.swing.JMenuItem" name="clearConsoleMenubutton">
@@ -102,7 +102,7 @@
                 <Property name="text" type="java.lang.String" value="Console leeren"/>
               </Properties>
               <Events>
-                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="clearConsoleMenubuttonActionPerformed"/>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="consoleClearAction"/>
               </Events>
             </MenuItem>
           </SubComponents>
@@ -124,7 +124,7 @@
     <SyntheticProperty name="formSizePolicy" type="int" value="1"/>
   </SyntheticProperties>
   <Events>
-    <EventHandler event="windowClosing" listener="java.awt.event.WindowListener" parameters="java.awt.event.WindowEvent" handler="formWindowClosing"/>
+    <EventHandler event="windowClosing" listener="java.awt.event.WindowListener" parameters="java.awt.event.WindowEvent" handler="closingAction"/>
   </Events>
   <AuxValues>
     <AuxValue name="FormSettings_autoResourcing" type="java.lang.Integer" value="0"/>
@@ -150,16 +150,12 @@
           </Group>
           <Component id="jSeparator1" alignment="0" max="32767" attributes="0"/>
           <Component id="inputField" alignment="1" max="32767" attributes="0"/>
-          <Group type="102" attributes="0">
+          <Group type="102" alignment="0" attributes="0">
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
                   <Group type="102" alignment="1" attributes="0">
                       <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
                       <Component id="ckearButton" min="-2" max="-2" attributes="0"/>
-                  </Group>
-                  <Group type="102" attributes="0">
-                      <Component id="jScrollPane3" max="32767" attributes="0"/>
-                      <EmptySpace max="-2" attributes="0"/>
                   </Group>
                   <Group type="102" alignment="0" attributes="0">
                       <Component id="autoButton" min="-2" max="-2" attributes="0"/>
@@ -172,6 +168,7 @@
                   </Group>
               </Group>
           </Group>
+          <Component id="jScrollPane1" alignment="1" max="32767" attributes="0"/>
       </Group>
     </DimensionLayout>
     <DimensionLayout dim="1">
@@ -194,8 +191,8 @@
               <EmptySpace min="-2" max="-2" attributes="0"/>
               <Component id="inputField" min="-2" max="-2" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>
-              <Component id="jScrollPane3" pref="208" max="32767" attributes="0"/>
-              <EmptySpace type="unrelated" max="-2" attributes="0"/>
+              <Component id="jScrollPane1" pref="213" max="32767" attributes="0"/>
+              <EmptySpace max="-2" attributes="0"/>
               <Component id="ckearButton" min="-2" max="-2" attributes="0"/>
           </Group>
       </Group>
@@ -207,7 +204,7 @@
         <Property name="text" type="java.lang.String" value="compiliere OOPSC"/>
       </Properties>
       <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jcButtonActionPerformed"/>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="oopscCompileAction"/>
       </Events>
     </Component>
     <Component class="javax.swing.JButton" name="ocButton">
@@ -215,7 +212,7 @@
         <Property name="text" type="java.lang.String" value="compiliere OOPS"/>
       </Properties>
       <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="ocButtonActionPerformed"/>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="oopsProgrammCompileAction"/>
       </Events>
     </Component>
     <Component class="javax.swing.JButton" name="fileButton">
@@ -223,7 +220,7 @@
         <Property name="text" type="java.lang.String" value="..."/>
       </Properties>
       <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="fileButtonActionPerformed"/>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="afterFileSelectAction"/>
       </Events>
     </Component>
     <Component class="javax.swing.JSeparator" name="jSeparator1">
@@ -233,7 +230,6 @@
         <Property name="enabled" type="boolean" value="false"/>
       </Properties>
       <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="inputFieldActionPerformed"/>
         <EventHandler event="keyTyped" listener="java.awt.event.KeyListener" parameters="java.awt.event.KeyEvent" handler="inputFieldKeyTyped"/>
       </Events>
     </Component>
@@ -242,7 +238,7 @@
         <Property name="text" type="java.lang.String" value="Optionen"/>
       </Properties>
       <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="optionButtonActionPerformed"/>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="showOptionAction"/>
       </Events>
     </Component>
     <Component class="javax.swing.JButton" name="vmButton">
@@ -250,7 +246,7 @@
         <Property name="text" type="java.lang.String" value="compiliere OOPSVM"/>
       </Properties>
       <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="vmButtonActionPerformed"/>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="oopsvmCompileAction"/>
       </Events>
     </Component>
     <Component class="javax.swing.JButton" name="ckearButton">
@@ -258,7 +254,7 @@
         <Property name="text" type="java.lang.String" value="clear"/>
       </Properties>
       <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="ckearButtonActionPerformed"/>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="consoleClearAction"/>
       </Events>
     </Component>
     <Component class="javax.swing.JToggleButton" name="inputButton">
@@ -266,32 +262,27 @@
         <Property name="text" type="java.lang.String" value="mit Eingabe"/>
       </Properties>
       <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="inputButtonActionPerformed"/>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="manuellExecuteAction"/>
       </Events>
     </Component>
-    <Container class="javax.swing.JScrollPane" name="jScrollPane3">
+    <Component class="javax.swing.JToggleButton" name="autoButton">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Starte mit .IO"/>
+      </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="automatikExecuteAction"/>
+      </Events>
+    </Component>
+    <Container class="javax.swing.JScrollPane" name="jScrollPane1">
       <AuxValues>
         <AuxValue name="autoScrollPane" type="java.lang.Boolean" value="true"/>
       </AuxValues>
 
       <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
       <SubComponents>
-        <Component class="javax.swing.JEditorPane" name="outputConsole">
-          <Properties>
-            <Property name="contentType" type="java.lang.String" value="text/html" noResource="true"/>
-            <Property name="editable" type="boolean" value="false"/>
-            <Property name="text" type="java.lang.String" value="&lt;html&gt;&#xd;&#xa;  &lt;head&gt;&#xd;&#xa;  &lt;/head&gt;&#xd;&#xa;  &lt;body&gt;&#xd;&#xa;&lt;font color=#000000&gt;&#xa;&lt;/font&gt;&#xa;  &lt;/body&gt;&#xd;&#xa;&lt;/html&gt;&#xd;&#xa;"/>
-          </Properties>
+        <Component class="javax.swing.JTextPane" name="consolePane">
         </Component>
       </SubComponents>
     </Container>
-    <Component class="javax.swing.JToggleButton" name="autoButton">
-      <Properties>
-        <Property name="text" type="java.lang.String" value="Starte mit .IO"/>
-      </Properties>
-      <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="autoButtonActionPerformed"/>
-      </Events>
-    </Component>
   </SubComponents>
 </Form>

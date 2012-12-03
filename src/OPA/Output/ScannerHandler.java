@@ -2,93 +2,52 @@
  * Diese Klasse erstellt einen Thread, indem auf einen Stream gehocht wird und
  * dieser in ein JTextPane geschrieben wird.
  */
-package OPA;
+package OPA.Output;
 
 import java.awt.Color;
 import java.util.Scanner;
-import javax.swing.JEditorPane;
-import javax.swing.SwingUtilities;
 
 /**
  * Klasse zum verbinden eines Stream zu einem JTextPane
  * @author Dirk
  */
-public class ConsoleHandler extends Thread {
-    private JEditorPane console;
+public class ScannerHandler extends Thread {
+    private ConsoleHandler console;
     private Scanner scanner;
     private Color color;
+    private Boolean closed;
     
-    ConsoleHandler( Scanner scanner, JEditorPane console){
-        this.console = console;
-        this.scanner = scanner;
-        this.color = Color.BLACK;
+    ScannerHandler( Scanner scanner, ConsoleHandler master){
+        this(scanner, master, Color.BLACK);
     }
     
-    ConsoleHandler( Scanner scanner, JEditorPane console,Color color){
-        this.console = console;
+    ScannerHandler( Scanner scanner, ConsoleHandler master,Color color){
+        this.console = master;
         this.scanner = scanner;
         this.color = color;
+        this.closed = false;
     }
 
-
+    public void close(){
+        closed= false;
+        scanner.close();
+    }
+    
     @Override
     public void run(){
         if(scanner != null){
-            while(scanner.hasNext()){
-                String line = scanner.next();
-                write(line, color);
+            while(scanner.hasNext() && !closed){
+                final String line = scanner.next();
+                java.awt.EventQueue.invokeLater(new Runnable() {
+                    @Override
+                    public void run() {                
+                        console.write(line, color);
+                    }
+                });
+                
             }
+            console.removeScanner(this);
             System.out.println("Scanner end.");
         }
-    }
-    
-    public JEditorPane getConsole(){
-        return console;
-    }
-    
-    public void write(String nextLine, Color color){
-        write(nextLine, color, new String[0]);
-    }
-    
-    public synchronized void write(final String nextLine, final Color color, final String[] attributes){
-            SwingUtilities.invokeLater(new Runnable() {
-            @Override 
-                public void run() {
-                    String text = console.getText();
-                    text = text.split("<body>")[1];
-                    text = (text.split("</body>"))[0];
-                    String colorString = "<font color=\"#"+colorName(color)+"\">";
-
-                    int lrf = text.lastIndexOf(colorString);
-                    int lf = text.lastIndexOf("<font color");
-                    if(lrf != -1 && lrf == lf){
-                    text = text.substring(0 ,text.length()-7);
-                    }else{
-                        text += colorString;
-                    }
-                    text += colorString;
-                    String newLine = nextLine.replace("&", "&amp");
-                    newLine = newLine.replace("<", "&lt");
-                    newLine = newLine.replace(">", "&gt");
-                    newLine = newLine.replace("\n", "<br>");
-                    for(String attribute : attributes){
-                        if(!attribute.equals("<br>")){
-                            newLine = attribute+newLine;
-                            attribute = attribute.replaceFirst("<", "</");
-                        }
-                            newLine += attribute;
-                    }
-                    text +=newLine+"</font>";
-                    console.setText(text);
-                    
-                    console.revalidate();
-                }
-            });
-    }
-    
-    private String colorName(Color color){
-        String hexString = Integer.toHexString(color.getRGB());
-        hexString =hexString.substring(2);
-        return hexString;
     }
 }

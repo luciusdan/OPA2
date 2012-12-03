@@ -2,8 +2,12 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package OPA;
+package OPA.GUI;
 
+import OPA.CompileHandler;
+import OPA.ExecHandler;
+import OPA.Object.ObjectHandler;
+import OPA.Output.ConsoleHandler;
 import java.awt.Color;
 import java.io.File;
 import java.util.LinkedList;
@@ -14,33 +18,28 @@ import javax.swing.filechooser.FileFilter;
  *
  * @author Dirk
  */
-public class GUI extends javax.swing.JFrame {
+public class MainFrame extends javax.swing.JFrame {
+    OptionFrame optionFrame;
+    
+    ObjectHandler objHandler;
+    ConsoleHandler console;
+    
     LinkedList<String> oopsFiles;
-    ConfigHandler cfgHandler = new ConfigHandler();
-    OptionFrame options;
     CompileHandler cHandler;
     ExecHandler eHandler;
     
     /**
      * Creates new form GUI
      */
-    public GUI() {
+    public MainFrame(ObjectHandler objHandler) {
         initComponents();
-        oopsFiles = new LinkedList<String>();
-        options = new OptionFrame(cfgHandler);
-        cHandler = new CompileHandler(cfgHandler, outputConsole, oopsFiles);
-        eHandler = new ExecHandler(cfgHandler, outputConsole, oopsFiles);
-        final String fileName = cfgHandler.getAttribute("PROGRAM_NAME");
-        fileChooser.setFileFilter( new FileFilter() {
-            @Override
-            public boolean accept(File f) {
-                return (f.getName().toLowerCase().endsWith(fileName) || f.isDirectory());
-            }
-            @Override
-            public String getDescription() {
-                    return fileName+" / OOPS Programme";
-            }
-            });
+        this.optionFrame = new OptionFrame(objHandler);
+        
+        this.objHandler = objHandler;
+        this.console = new ConsoleHandler(consolePane);
+        cHandler = new CompileHandler(objHandler, console);
+        eHandler = new ExecHandler(oopsFiles,objHandler,console);
+        setFilter();
     }
 
     /**
@@ -65,9 +64,9 @@ public class GUI extends javax.swing.JFrame {
         vmButton = new javax.swing.JButton();
         ckearButton = new javax.swing.JButton();
         inputButton = new javax.swing.JToggleButton();
-        jScrollPane3 = new javax.swing.JScrollPane();
-        outputConsole = new javax.swing.JEditorPane();
         autoButton = new javax.swing.JToggleButton();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        consolePane = new javax.swing.JTextPane();
         jMenuBar1 = new javax.swing.JMenuBar();
         dataMenu = new javax.swing.JMenu();
         openMenuButton = new javax.swing.JMenuItem();
@@ -91,37 +90,32 @@ public class GUI extends javax.swing.JFrame {
         setTitle("OPA Standart Edition");
         addWindowListener(new java.awt.event.WindowAdapter() {
             public void windowClosing(java.awt.event.WindowEvent evt) {
-                formWindowClosing(evt);
+                closingAction(evt);
             }
         });
 
         jcButton.setText("compiliere OOPSC");
         jcButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jcButtonActionPerformed(evt);
+                oopscCompileAction(evt);
             }
         });
 
         ocButton.setText("compiliere OOPS");
         ocButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                ocButtonActionPerformed(evt);
+                oopsProgrammCompileAction(evt);
             }
         });
 
         fileButton.setText("...");
         fileButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                fileButtonActionPerformed(evt);
+                afterFileSelectAction(evt);
             }
         });
 
         inputField.setEnabled(false);
-        inputField.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                inputFieldActionPerformed(evt);
-            }
-        });
         inputField.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyTyped(java.awt.event.KeyEvent evt) {
                 inputFieldKeyTyped(evt);
@@ -131,42 +125,39 @@ public class GUI extends javax.swing.JFrame {
         optionButton.setText("Optionen");
         optionButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                optionButtonActionPerformed(evt);
+                showOptionAction(evt);
             }
         });
 
         vmButton.setText("compiliere OOPSVM");
         vmButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                vmButtonActionPerformed(evt);
+                oopsvmCompileAction(evt);
             }
         });
 
         ckearButton.setText("clear");
         ckearButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                ckearButtonActionPerformed(evt);
+                consoleClearAction(evt);
             }
         });
 
         inputButton.setText("mit Eingabe");
         inputButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                inputButtonActionPerformed(evt);
+                manuellExecuteAction(evt);
             }
         });
-
-        outputConsole.setContentType("text/html"); // NOI18N
-        outputConsole.setEditable(false);
-        outputConsole.setText("<html>\r\n  <head>\r\n  </head>\r\n  <body>\r\n<font color=#000000>\n</font>\n  </body>\r\n</html>\r\n");
-        jScrollPane3.setViewportView(outputConsole);
 
         autoButton.setText("Starte mit .IO");
         autoButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                autoButtonActionPerformed(evt);
+                automatikExecuteAction(evt);
             }
         });
+
+        jScrollPane1.setViewportView(consolePane);
 
         dataMenu.setText("Datei");
 
@@ -174,7 +165,7 @@ public class GUI extends javax.swing.JFrame {
         openMenuButton.setText("Datei öffnen...");
         openMenuButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                openMenuButtonActionPerformed(evt);
+                afterFileSelectAction(evt);
             }
         });
         dataMenu.add(openMenuButton);
@@ -183,7 +174,7 @@ public class GUI extends javax.swing.JFrame {
         closMenuButton.setText("Beenden");
         closMenuButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                closMenuButtonActionPerformed(evt);
+                closeingAction(evt);
             }
         });
         dataMenu.add(closMenuButton);
@@ -191,21 +182,21 @@ public class GUI extends javax.swing.JFrame {
         jMenuBar1.add(dataMenu);
 
         compileMenu.setText("Compilieren");
+        compileMenu.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                oopscCompileAction(evt);
+            }
+        });
 
         cOCMenuButton.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_C, java.awt.event.InputEvent.SHIFT_MASK));
         cOCMenuButton.setText("compiliere OOPSC");
-        cOCMenuButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                cOCMenuButtonActionPerformed(evt);
-            }
-        });
         compileMenu.add(cOCMenuButton);
 
         cOVMMenuButton.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_R, java.awt.event.InputEvent.SHIFT_MASK));
         cOVMMenuButton.setText("compiliere OOPSVM");
         cOVMMenuButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                cOVMMenuButtonActionPerformed(evt);
+                oopsvmCompileAction(evt);
             }
         });
         compileMenu.add(cOVMMenuButton);
@@ -218,7 +209,7 @@ public class GUI extends javax.swing.JFrame {
         optionMenubutton.setText("Optionen");
         optionMenubutton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                optionMenubuttonActionPerformed(evt);
+                showOptionAction(evt);
             }
         });
         extraMenu.add(optionMenubutton);
@@ -227,7 +218,7 @@ public class GUI extends javax.swing.JFrame {
         clearConsoleMenubutton.setText("Console leeren");
         clearConsoleMenubutton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                clearConsoleMenubuttonActionPerformed(evt);
+                consoleClearAction(evt);
             }
         });
         extraMenu.add(clearConsoleMenubutton);
@@ -258,9 +249,6 @@ public class GUI extends javax.swing.JFrame {
                         .addGap(0, 0, Short.MAX_VALUE)
                         .addComponent(ckearButton))
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(jScrollPane3)
-                        .addContainerGap())
-                    .addGroup(layout.createSequentialGroup()
                         .addComponent(autoButton)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(inputButton, javax.swing.GroupLayout.PREFERRED_SIZE, 113, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -268,6 +256,7 @@ public class GUI extends javax.swing.JFrame {
                         .addComponent(ocButton)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(fileButton, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE))))
+            .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.TRAILING)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -287,89 +276,49 @@ public class GUI extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(inputField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 208, Short.MAX_VALUE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 213, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(ckearButton))
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void fileButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_fileButtonActionPerformed
-        fileChooser.setCurrentDirectory(new File (cfgHandler.getAttribute("OIP")));
-        fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
-        fileChooser.setMultiSelectionEnabled(true);
+    private void afterFileSelectAction(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_afterFileSelectAction
+        fileChooser.setCurrentDirectory(new File (objHandler.getData("OOPS_PROGRAMM_PATH_IN").getStringValue()));
         int returnVal = fileChooser.showOpenDialog(this);
-        if (returnVal == fileChooser.APPROVE_OPTION) {
-            File[] files = fileChooser.getSelectedFiles();
-            oopsFiles.clear();
-            for(File file : files){
-                String onlyName = file.getName();
-                onlyName = onlyName.substring(0, onlyName.length()-cfgHandler.getAttribute("PROGRAM_NAME").length());
-                if(!oopsFiles.contains(onlyName)){
-                    oopsFiles.add(onlyName);
-                }
-            }
-            cfgHandler.setAttribute("OIP", files[0].getParent());
-        } else {
-            System.out.println("File access cancelled by user.");
-        }
-    }//GEN-LAST:event_fileButtonActionPerformed
+        if (returnVal == JFileChooser.APPROVE_OPTION) {
+            objHandler.setOOPSFiles(fileChooser.getSelectedFiles());
+        }        
+    }//GEN-LAST:event_afterFileSelectAction
 
-    private void optionButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_optionButtonActionPerformed
-    options.setVisible(true);
-    options.setLocationRelativeTo(this);
-    }//GEN-LAST:event_optionButtonActionPerformed
+    private void showOptionAction(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_showOptionAction
+    optionFrame.setVisible(true);
+    optionFrame.setLocationRelativeTo(this);
+    }//GEN-LAST:event_showOptionAction
 
-    private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
-    cfgHandler.writeConfig();
-    
-    }//GEN-LAST:event_formWindowClosing
+    private void closingAction(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_closingAction
+        objHandler.save();
+    }//GEN-LAST:event_closingAction
 
-    private void jcButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jcButtonActionPerformed
+    private void oopscCompileAction(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_oopscCompileAction
         cHandler.compileOOPSC();
-    }//GEN-LAST:event_jcButtonActionPerformed
+    }//GEN-LAST:event_oopscCompileAction
 
-    private void vmButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_vmButtonActionPerformed
+    private void oopsvmCompileAction(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_oopsvmCompileAction
         cHandler.compileOOPSVM();
-    }//GEN-LAST:event_vmButtonActionPerformed
+    }//GEN-LAST:event_oopsvmCompileAction
 
-    private void ckearButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ckearButtonActionPerformed
-        outputConsole.setText("");
-    }//GEN-LAST:event_ckearButtonActionPerformed
+    private void consoleClearAction(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_consoleClearAction
+        console.clear();
+    }//GEN-LAST:event_consoleClearAction
 
-    private void ocButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ocButtonActionPerformed
+    private void oopsProgrammCompileAction(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_oopsProgrammCompileAction
         cHandler.compileOOPS();
-    }//GEN-LAST:event_ocButtonActionPerformed
+    }//GEN-LAST:event_oopsProgrammCompileAction
 
-    private void cOCMenuButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cOCMenuButtonActionPerformed
-        cHandler.compileOOPSC();
-    }//GEN-LAST:event_cOCMenuButtonActionPerformed
-
-    private void cOVMMenuButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cOVMMenuButtonActionPerformed
-        cHandler.compileOOPSVM();
-    }//GEN-LAST:event_cOVMMenuButtonActionPerformed
-
-    private void openMenuButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_openMenuButtonActionPerformed
-        fileButtonActionPerformed(evt);
-    }//GEN-LAST:event_openMenuButtonActionPerformed
-
-    private void closMenuButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_closMenuButtonActionPerformed
-        cfgHandler.writeConfig();
-        System.exit(0);
-    }//GEN-LAST:event_closMenuButtonActionPerformed
-
-    private void clearConsoleMenubuttonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_clearConsoleMenubuttonActionPerformed
-        outputConsole.setText("");
-    }//GEN-LAST:event_clearConsoleMenubuttonActionPerformed
-
-    private void optionMenubuttonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_optionMenubuttonActionPerformed
-    options.setVisible(true);
-    options.setLocationRelativeTo(this);
-    }//GEN-LAST:event_optionMenubuttonActionPerformed
-
-    private void inputButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_inputButtonActionPerformed
-        if(inputButton.isSelected()){
+    private void manuellExecuteAction(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_manuellExecuteAction
+if(inputButton.isSelected()){
             if(eHandler.execManuell()){
                 inputField.requestFocus();
                 inputField.setEnabled(true);
@@ -377,7 +326,8 @@ public class GUI extends javax.swing.JFrame {
                 ocButton.setEnabled(false);
             }else{
                 inputButton.setSelected(false);
-                write("<font color=#\""+Integer.toHexString(Color.RED.getRGB()).substring(2)+"\"><p>ERROR No selected OOPS-Program.</p></font>");
+                console.write("ERROR", Color.RED, true);
+                console.write(" No selected OOPS-Program.");
             }
         }else{
             inputField.setEnabled(false);
@@ -386,11 +336,7 @@ public class GUI extends javax.swing.JFrame {
             ocButton.setEnabled(true);
             eHandler.abbort();
         }
-    }//GEN-LAST:event_inputButtonActionPerformed
-
-    private void inputFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_inputFieldActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_inputFieldActionPerformed
+    }//GEN-LAST:event_manuellExecuteAction
 
     private void inputFieldKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_inputFieldKeyTyped
         if(evt.getKeyChar() == '\n'){
@@ -399,7 +345,7 @@ public class GUI extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_inputFieldKeyTyped
 
-    private void autoButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_autoButtonActionPerformed
+    private void automatikExecuteAction(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_automatikExecuteAction
         if(autoButton.isSelected()){
                 inputButton.setEnabled(false);
                 ocButton.setEnabled(false);
@@ -413,7 +359,11 @@ public class GUI extends javax.swing.JFrame {
             ocButton.setEnabled(true);
             eHandler.abbort();
         }
-    }//GEN-LAST:event_autoButtonActionPerformed
+    }//GEN-LAST:event_automatikExecuteAction
+
+    private void closeingAction(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_closeingAction
+        // TODO add your handling code here:
+    }//GEN-LAST:event_closeingAction
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JToggleButton autoButton;
@@ -424,6 +374,7 @@ public class GUI extends javax.swing.JFrame {
     private javax.swing.JMenuItem closMenuButton;
     private javax.swing.JPopupMenu.Separator closeSeparator;
     private javax.swing.JMenu compileMenu;
+    private javax.swing.JTextPane consolePane;
     private javax.swing.JMenu dataMenu;
     private javax.swing.JMenu extraMenu;
     private javax.swing.JButton fileButton;
@@ -435,21 +386,30 @@ public class GUI extends javax.swing.JFrame {
     private javax.swing.JMenuItem jMenuItem1;
     private javax.swing.JMenuItem jMenuItem2;
     private javax.swing.JMenuItem jMenuItem4;
-    private javax.swing.JScrollPane jScrollPane3;
+    private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JSeparator jSeparator1;
     private javax.swing.JButton jcButton;
     private javax.swing.JButton ocButton;
     private javax.swing.JMenuItem openMenuButton;
     private javax.swing.JButton optionButton;
     private javax.swing.JMenuItem optionMenubutton;
-    private javax.swing.JEditorPane outputConsole;
     private javax.swing.JButton vmButton;
     // End of variables declaration//GEN-END:variables
 
-    private void write(String nextLine){
-        String text = outputConsole.getText();
-        String[] pieces = text.split("<body>");
-        pieces = pieces[1].split("</body>");
-        outputConsole.setText(pieces[0]+"\n "+nextLine);
+    
+    private void setFilter(){
+        final String programmFileType = objHandler.getData("OOPS_PROGRAMM_TYPE").getStringValue();
+        fileChooser.setFileFilter( new FileFilter() {
+            @Override
+            public boolean accept(File f) {
+                return (f.getName().toLowerCase().endsWith(programmFileType) || f.isDirectory());
+            }
+            @Override
+            public String getDescription() {
+                    return programmFileType+" / OOPS Programme";
+            }
+        });
+        fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+        fileChooser.setMultiSelectionEnabled(true);
     }
 }

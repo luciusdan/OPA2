@@ -1,10 +1,15 @@
+//TODO Parameter als string realisieren, parsen
+
 /*
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package OPA;
+package OPA.GUI;
 
+import OPA.Object.Data;
+import OPA.Object.ObjectHandler;
 import java.io.File;
+import java.util.HashMap;
 import javax.swing.ButtonModel;
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileFilter;
@@ -14,91 +19,26 @@ import javax.swing.filechooser.FileFilter;
  * @author Dirk
  */
 public class OptionFrame extends javax.swing.JFrame {
-    ConfigHandler cfgHandler;
+    ObjectHandler objHandler;
     FileFilter oopscFilter;
     FileFilter oopsvmFilter;
     FileFilter elseFilter;
+    
+    HashMap<String,Data> datas;
+    HashMap<String,String> cCmd;
+    HashMap<String,String> vmCmd;
     /**
      * Creates new form OptionFrame
      */
-    public OptionFrame(ConfigHandler cfgHandler) {
-        this.cfgHandler = cfgHandler;
+    public OptionFrame(ObjectHandler objHandler) {
         initComponents();
-        //fromPathField.setText(objHandler.oopsC.getFromPath().getPath());
-        //toPathField.setText(objHandler.oopsC.getToPath().getPath());
-        cButton.setSelected(cfgHandler.getAttributeBoolean("-C"));
-        lButton.setSelected(cfgHandler.getAttributeBoolean("-L"));
-        sButton.setSelected(cfgHandler.getAttributeBoolean("-S"));
-        iButton.setSelected(cfgHandler.getAttributeBoolean("-I"));
-        pathButton.setSelected(cfgHandler.getAttributeBoolean("FULL"));
-        javaExecPathBox.setSelected(cfgHandler.getAttributeBoolean("JP"));
-        ssButton.setValue(cfgHandler.getAttributeInt("-SS"));
-        hsButton.setValue(cfgHandler.getAttributeInt("-HS"));
+        this.datas = objHandler.getDatas();
         
-        toJCText.setText(cfgHandler.getAttribute("JOP"));
-        fromJCText.setText(cfgHandler.getAttribute("JIP"));
-        toVMText.setText(cfgHandler.getAttribute("VMOP"));
-        fromVMText.setText(cfgHandler.getAttribute("VMIP"));
-        toOCText.setText(cfgHandler.getAttribute("OOP"));
-        String sel = cfgHandler.getAttribute("-AS");
-        if(sel.equals("1")){
-            asBG.setSelected(as1Button.getModel(), true);
-        }else if(sel.equals("2")){
-            asBG.setSelected(as2Button.getModel(), true);
-        }else if(sel.equals("ALL")){
-            asBG.setSelected(asnButton.getModel(), true);
-        }
-        sel = cfgHandler.getAttribute("-R2");
-        if(sel.equals("UP")){
-            r2BG.setSelected(r2UpButton.getModel(), true);
-        }else if(sel.equals("DOWN")){
-            r2BG.setSelected(r2DownButton.getModel(), true);
-        }else if(sel.equals("NONE")){
-            r2BG.setSelected(r2NoneButton.getModel(), true);
-        }
-        sel = cfgHandler.getAttribute("-R4");
-        if(sel.equals("UP")){
-            r4BG.setSelected(r4UpButton.getModel(), true);
-        }else if(sel.equals("DOWN")){
-            r4BG.setSelected(r4DownButton.getModel(), true);
-        }else if(sel.equals("NONE")){
-            r4BG.setSelected(r4NoneButton.getModel(), true);
-        }
-        
-        final String oopscName = cfgHandler.getAttribute("OOPSC_NAME");
-        oopscFilter =  new FileFilter() {
-                @Override
-                public boolean accept(File f) {
-                    return (f.getName().equals(oopscName+".java") || f.isDirectory());
-                }
-                @Override
-                public String getDescription() {
-                        return oopscName+".java";
-                }
-            };
-        final String oopsvmName = cfgHandler.getAttribute("OOPSVM_NAME");
-        oopsvmFilter =  new FileFilter() {
-                @Override
-                public boolean accept(File f) {
-                    return (f.getName().equals(oopsvmName+".java") || f.isDirectory());
-                }
-                @Override
-                public String getDescription() {
-                        return oopsvmName+".java";
-                }
-            };
-        elseFilter =  new FileFilter() {
-                @Override
-                public boolean accept(File f) {
-                    return (f.isDirectory());
-                }
-                @Override
-                public String getDescription() {
-                        return "";
-                }
-            };
-        
-       
+        this.cCmd = datas.get("OOPSC_PARAMETERS").getValues();
+        this.vmCmd = datas.get("OOPSVM_PARAMETERS").getValues();
+        setOOPSCParameters();
+        setOOPSVMParameters();
+        setFilter();
     }
 
     /**
@@ -110,10 +50,12 @@ public class OptionFrame extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        fileChooser = new javax.swing.JFileChooser();
         asBG = new javax.swing.ButtonGroup();
         r2BG = new javax.swing.ButtonGroup();
         r4BG = new javax.swing.ButtonGroup();
+        oopscFileChooser = new javax.swing.JFileChooser();
+        oopsvmFileChooser = new javax.swing.JFileChooser();
+        elseFileChooser = new javax.swing.JFileChooser();
         mainPanel = new javax.swing.JTabbedPane();
         javaFramePanel = new javax.swing.JPanel();
         javaLabel = new javax.swing.JLabel();
@@ -165,10 +107,9 @@ public class OptionFrame extends javax.swing.JFrame {
         as1Button = new javax.swing.JRadioButton();
         as2Button = new javax.swing.JRadioButton();
         asnButton = new javax.swing.JRadioButton();
-        onlyButton = new javax.swing.JCheckBox();
         pathButton = new javax.swing.JCheckBox();
 
-        fileChooser.setFileSelectionMode(javax.swing.JFileChooser.DIRECTORIES_ONLY);
+        elseFileChooser.setFileSelectionMode(javax.swing.JFileChooser.DIRECTORIES_ONLY);
 
         setTitle("Optionen");
         setResizable(false);
@@ -285,7 +226,7 @@ public class OptionFrame extends javax.swing.JFrame {
                 .addGroup(javaFramePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(toVMButton)
                     .addComponent(toVMText, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(100, Short.MAX_VALUE))
+                .addContainerGap(104, Short.MAX_VALUE))
         );
 
         mainPanel.addTab("JAVA", javaFramePanel);
@@ -339,7 +280,7 @@ public class OptionFrame extends javax.swing.JFrame {
         heapLabel.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
         heapLabel.setText("Heap Größe");
 
-        ssButton.setValue(50
+        ssButton.setValue(100
         );
         ssButton.addChangeListener(new javax.swing.event.ChangeListener() {
             public void stateChanged(javax.swing.event.ChangeEvent evt) {
@@ -429,7 +370,7 @@ public class OptionFrame extends javax.swing.JFrame {
                 .addComponent(oopscLabel)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(ereignissPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 128, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 132, Short.MAX_VALUE)
                 .addGroup(oopscFramePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(toOCPanel)
                     .addComponent(toOCText, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -687,13 +628,6 @@ public class OptionFrame extends javax.swing.JFrame {
                     .addComponent(asnButton)))
         );
 
-        onlyButton.setText("nur Übersetzen");
-        onlyButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                onlyButtonActionPerformed(evt);
-            }
-        });
-
         javax.swing.GroupLayout oopsvmFramePanelLayout = new javax.swing.GroupLayout(oopsvmFramePanel);
         oopsvmFramePanel.setLayout(oopsvmFramePanelLayout);
         oopsvmFramePanelLayout.setHorizontalGroup(
@@ -702,9 +636,6 @@ public class OptionFrame extends javax.swing.JFrame {
                 .addContainerGap()
                 .addGroup(oopsvmFramePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(manuellVMPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 326, Short.MAX_VALUE)
-                    .addGroup(oopsvmFramePanelLayout.createSequentialGroup()
-                        .addComponent(onlyButton)
-                        .addGap(0, 227, Short.MAX_VALUE))
                     .addComponent(assPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
@@ -714,10 +645,8 @@ public class OptionFrame extends javax.swing.JFrame {
                 .addContainerGap()
                 .addComponent(manuellVMPanel, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(onlyButton)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(assPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(63, Short.MAX_VALUE))
+                .addContainerGap(88, Short.MAX_VALUE))
         );
 
         mainPanel.addTab("OOPSVM", oopsvmFramePanel);
@@ -756,13 +685,11 @@ public class OptionFrame extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void fromJCButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_fromJCButtonActionPerformed
-        fileChooser.setFileFilter(oopscFilter);
-        fileChooser.setCurrentDirectory(new File (cfgHandler.getAttribute("JIP")));
-        fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
-        int returnVal = fileChooser.showOpenDialog(this);
-        if (returnVal == fileChooser.APPROVE_OPTION) {
-            String filePath = fileChooser.getSelectedFile().getParent();
-            cfgHandler.setAttribute("JIP", filePath);
+        oopscFileChooser.setCurrentDirectory(new File (datas.get("OOPS_C_PATH_IN").getStringValue()));
+        int returnVal = oopscFileChooser.showOpenDialog(this);
+        if (returnVal == JFileChooser.APPROVE_OPTION) {
+            String filePath = oopscFileChooser.getSelectedFile().getParent();
+            datas.get("OOPS_C_PATH_IN").setValue(filePath);
             fromJCText.setText (filePath);
             
 
@@ -773,62 +700,56 @@ public class OptionFrame extends javax.swing.JFrame {
 
     private void cButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cButtonActionPerformed
         if(cButton.isSelected()){
-            cfgHandler.setAttribute("-C", "TRUE");
+            cCmd.put("-c", null);
         }else{
-            cfgHandler.setAttribute("-C", "FALSE");
+            cCmd.remove("-c");
         }
     }//GEN-LAST:event_cButtonActionPerformed
 
     private void lButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_lButtonActionPerformed
-        if(lButton.isSelected()){
-            cfgHandler.setAttribute("-L", "TRUE");
+                if(lButton.isSelected()){
+            cCmd.put("-l", null);
         }else{
-            cfgHandler.setAttribute("-L", "FALSE");
+            cCmd.remove("-l");
         }
     }//GEN-LAST:event_lButtonActionPerformed
 
     private void sButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_sButtonActionPerformed
         if(sButton.isSelected()){
-            cfgHandler.setAttribute("-S", "TRUE");
+            cCmd.put("-s", null);
         }else{
-            cfgHandler.setAttribute("-S", "FALSE");
+            cCmd.remove("-s");
         }
     }//GEN-LAST:event_sButtonActionPerformed
 
     private void iButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_iButtonActionPerformed
         if(iButton.isSelected()){
-            cfgHandler.setAttribute("-I", "TRUE");
+            cCmd.put("-i", null);
         }else{
-            cfgHandler.setAttribute("-I", "FALSE");
+            cCmd.remove("-i");
         }
     }//GEN-LAST:event_iButtonActionPerformed
 
     private void ssButtonStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_ssButtonStateChanged
-        cfgHandler.setAttribute("-SS", ""+ssButton.getValue());
-
+        cCmd.put("-ss", ""+ssButton.getValue());
+        
     }//GEN-LAST:event_ssButtonStateChanged
 
     private void hsButtonStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_hsButtonStateChanged
-        cfgHandler.setAttribute("-HS", ""+hsButton.getValue());
-
+        cCmd.put("-hs", ""+hsButton.getValue());
     }//GEN-LAST:event_hsButtonStateChanged
 
     private void javaExecPathBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_javaExecPathBoxActionPerformed
-    if(lButton.isSelected()){
-            cfgHandler.setAttribute("JP", "TRUE");
-        }else{
-            cfgHandler.setAttribute("JP", "FALSE");
-        }
+        //TODO JAVA Pfad einstellungen
     }//GEN-LAST:event_javaExecPathBoxActionPerformed
 
     private void toJCButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_toJCButtonActionPerformed
-        fileChooser.setFileFilter(elseFilter);
-        fileChooser.setCurrentDirectory(new File (cfgHandler.getAttribute("JOP")));
-        fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-        int returnVal = fileChooser.showOpenDialog(this);
-        if (returnVal == fileChooser.APPROVE_OPTION) {
-            String filePath = fileChooser.getSelectedFile().getAbsolutePath();
-            cfgHandler.setAttribute("JOP", filePath);
+        elseFileChooser.setCurrentDirectory(new File (datas.get("OOPS_C_PATH_OUT").getStringValue()));
+        elseFileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+        int returnVal = elseFileChooser.showOpenDialog(this);
+        if (returnVal == JFileChooser.APPROVE_OPTION) {
+            String filePath = elseFileChooser.getSelectedFile().getAbsolutePath();
+            datas.get("OOPS_C_PATH_OUT").setValue(filePath);
             toJCText.setText (filePath);
         } else {
             System.out.println("File access cancelled by user.");
@@ -836,13 +757,11 @@ public class OptionFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_toJCButtonActionPerformed
 
     private void toOCPanelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_toOCPanelActionPerformed
-        fileChooser.setFileFilter(elseFilter);
-        fileChooser.setCurrentDirectory(new File (cfgHandler.getAttribute("OOP")));
-        fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-        int returnVal = fileChooser.showOpenDialog(this);
-        if (returnVal == fileChooser.APPROVE_OPTION) {
-            String filePath = fileChooser.getSelectedFile().getAbsolutePath();
-            cfgHandler.setAttribute("OOP", filePath);
+        elseFileChooser.setCurrentDirectory(new File (datas.get("OOPS_PROGRAMM_PATH_OUT").getStringValue()));
+        int returnVal = oopscFileChooser.showOpenDialog(this);
+        if (returnVal == JFileChooser.APPROVE_OPTION) {
+            String filePath = elseFileChooser.getSelectedFile().getAbsolutePath();
+            datas.get("OOPS_PROGRAMM_PATH_OUT").setValue(filePath);
             toOCText.setText (filePath);
         } else {
             System.out.println("File access cancelled by user.");
@@ -850,13 +769,11 @@ public class OptionFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_toOCPanelActionPerformed
 
     private void fromVMButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_fromVMButtonActionPerformed
-        fileChooser.setFileFilter(oopsvmFilter);
-        fileChooser.setCurrentDirectory(new File (cfgHandler.getAttribute("VMIP")));
-        fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
-        int returnVal = fileChooser.showOpenDialog(this);
-        if (returnVal == fileChooser.APPROVE_OPTION) {
-            String filePath = fileChooser.getSelectedFile().getParent();
-            cfgHandler.setAttribute("VMIP", filePath);
+        oopsvmFileChooser.setCurrentDirectory(new File (datas.get("OOPS_VM_PATH_IN").getStringValue()));
+        int returnVal = oopsvmFileChooser.showOpenDialog(this);
+        if (returnVal == JFileChooser.APPROVE_OPTION) {
+            String filePath = oopsvmFileChooser.getSelectedFile().getParent();
+            datas.get("OOPS_VM_PATH_IN").setValue(filePath);
             fromVMText.setText (filePath);
             
 
@@ -866,13 +783,11 @@ public class OptionFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_fromVMButtonActionPerformed
 
     private void toVMButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_toVMButtonActionPerformed
-        fileChooser.setFileFilter(elseFilter);
-        fileChooser.setCurrentDirectory(new File (cfgHandler.getAttribute("VMOP")));
-        fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-        int returnVal = fileChooser.showOpenDialog(this);
-        if (returnVal == fileChooser.APPROVE_OPTION) {
-            String filePath = fileChooser.getSelectedFile().getAbsolutePath();
-            cfgHandler.setAttribute("VMOP", filePath);
+        elseFileChooser.setCurrentDirectory(new File (datas.get("OOPS_VM_PATH_OUT").getStringValue()));
+        int returnVal = elseFileChooser.showOpenDialog(this);
+        if (returnVal == JFileChooser.APPROVE_OPTION) {
+            String filePath = elseFileChooser.getSelectedFile().getAbsolutePath();
+            datas.get("OOPS_VM_PATH_OUT").setValue(filePath);
             toVMText.setText (filePath);
         } else {
             System.out.println("File access cancelled by user.");
@@ -889,35 +804,27 @@ public class OptionFrame extends javax.swing.JFrame {
 
     private void iVMButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_iVMButtonActionPerformed
         if(iVMButton.isSelected()){
-            cfgHandler.setAttribute("-IVM", "TRUE");
+            vmCmd.put("-i", null);
         }else{
-            cfgHandler.setAttribute("-IVM", "FALSE");
+            vmCmd.remove("-i");
         }
     }//GEN-LAST:event_iVMButtonActionPerformed
 
     private void mVMButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mVMButtonActionPerformed
         if(mVMButton.isSelected()){
-            cfgHandler.setAttribute("-MVM", "TRUE");
+            vmCmd.put("-m", null);
         }else{
-            cfgHandler.setAttribute("-MVM", "FALSE");
+            vmCmd.remove("-m");
         }
     }//GEN-LAST:event_mVMButtonActionPerformed
 
     private void rVMButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rVMButtonActionPerformed
         if(rVMButton.isSelected()){
-            cfgHandler.setAttribute("-RVM", "TRUE");
+            vmCmd.put("-r", null);
         }else{
-            cfgHandler.setAttribute("-RVM", "FALSE");
+            vmCmd.remove("-r");
         }
     }//GEN-LAST:event_rVMButtonActionPerformed
-
-    private void onlyButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_onlyButtonActionPerformed
-        if(onlyButton.isSelected()){
-            cfgHandler.setAttribute("-CVM", "TRUE");
-        }else{
-            cfgHandler.setAttribute("-CVM", "FALSE");
-        }
-    }//GEN-LAST:event_onlyButtonActionPerformed
 
     private void r4DownButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_r4DownButtonActionPerformed
         r4Box();
@@ -948,11 +855,7 @@ public class OptionFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_asnButtonActionPerformed
 
     private void pathButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_pathButtonActionPerformed
-    if(pathButton.isSelected()){
-            cfgHandler.setAttribute("FULL", "TRUE");
-        }else{
-            cfgHandler.setAttribute("FULL", "FALSE");
-        }
+        datas.get("SHORT_NAME").setValue(!pathButton.isSelected());
     }//GEN-LAST:event_pathButtonActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -963,9 +866,9 @@ public class OptionFrame extends javax.swing.JFrame {
     private javax.swing.JLabel assLabel;
     private javax.swing.JPanel assPanel;
     private javax.swing.JCheckBox cButton;
+    private javax.swing.JFileChooser elseFileChooser;
     private javax.swing.JLabel ereignissLabel;
     private javax.swing.JPanel ereignissPanel;
-    private javax.swing.JFileChooser fileChooser;
     private javax.swing.JButton fromJCButton;
     private javax.swing.JTextField fromJCText;
     private javax.swing.JButton fromVMButton;
@@ -984,9 +887,10 @@ public class OptionFrame extends javax.swing.JFrame {
     private javax.swing.JTabbedPane mainPanel;
     private javax.swing.JLabel manuellVMLabel;
     private javax.swing.JPanel manuellVMPanel;
-    private javax.swing.JCheckBox onlyButton;
+    private javax.swing.JFileChooser oopscFileChooser;
     private javax.swing.JPanel oopscFramePanel;
     private javax.swing.JLabel oopscLabel;
+    private javax.swing.JFileChooser oopsvmFileChooser;
     private javax.swing.JPanel oopsvmFramePanel;
     private javax.swing.JCheckBox pathButton;
     private javax.swing.ButtonGroup r2BG;
@@ -1018,32 +922,137 @@ public class OptionFrame extends javax.swing.JFrame {
     private void r2Box(){
         ButtonModel sel = r2BG.getSelection();
         if(sel.equals(r2UpButton.getModel())){
-            cfgHandler.setAttribute("-R2", "UP");
+            vmCmd.put("-f2",null);
+            vmCmd.remove("-b2");
         }else if(sel.equals(r2DownButton.getModel())){
-            cfgHandler.setAttribute("-R2", "DOWN");
+            vmCmd.remove("-f2");
+            vmCmd.put("-b2",null);
         }else if(sel.equals(r2NoneButton.getModel())){
-            cfgHandler.setAttribute("-R2", "NONE");
+            vmCmd.remove("-f2");
+            vmCmd.remove("-b2");
         }
     }
     private void r4Box(){
         ButtonModel sel = r4BG.getSelection();
         if(sel.equals(r4UpButton.getModel())){
-            cfgHandler.setAttribute("-R4", "UP");
+            vmCmd.put("-f4",null);
+            vmCmd.remove("-b4");
         }else if(sel.equals(r4DownButton.getModel())){
-            cfgHandler.setAttribute("-R4", "DOWN");
+            vmCmd.remove("-f4");
+            vmCmd.put("-b4",null);
         }else if(sel.equals(r4NoneButton.getModel())){
-            cfgHandler.setAttribute("-R4", "NONE");
+            vmCmd.remove("-f4");
+            vmCmd.remove("-b4");
         }
     }
     
     private void asBox(){
+        Data data = datas.get("PARAM_VM_C");
         ButtonModel sel = asBG.getSelection();
         if(sel.equals(as1Button.getModel())){
-            cfgHandler.setAttribute("-AS", "1");
+            data.setValue("1");
         }else if(sel.equals(as2Button.getModel())){
-            cfgHandler.setAttribute("-AS", "2");
-        }else if(sel.equals(asnButton.getModel())){
-            cfgHandler.setAttribute("-AS", "ALL");
+            data.setValue("2");
+        }else{
+            data.setValue("ALL");
+        }
+    }
+    
+    private void setFilter(){
+        final String oopscName = datas.get("OOPS_COMPILER_NAME").getStringValue();
+        FileFilter filter;
+        filter =  new FileFilter() {
+                @Override
+                public boolean accept(File f) {
+                    return (f.getName().equals(oopscName+".java") || f.isDirectory());
+                }
+                @Override
+                public String getDescription() {
+                        return oopscName+".java";
+                }
+            };
+        oopscFileChooser.setFileFilter(filter);
+        final String oopsvmName = datas.get("OOPS_VM_NAME").getStringValue();
+        filter =  new FileFilter() {
+                @Override
+                public boolean accept(File f) {
+                    return (f.getName().equals(oopsvmName+".java") || f.isDirectory());
+                }
+                @Override
+                public String getDescription() {
+                        return oopsvmName+".java";
+                }
+            };
+        oopsvmFileChooser.setFileFilter(filter);
+    }
+
+    private void setOOPSCParameters() {
+        
+        pathButton.setSelected(datas.get("SHORT_NAME").getBooleanValue());
+        
+        toOCText.setText(datas.get("OOPS_PROGRAMM_PATH_OUT").getStringValue());
+        fromJCText.setText(datas.get("OOPS_C_PATH_IN").getStringValue());
+        toJCText.setText(datas.get("OOPS_C_PATH_OUT").getStringValue());
+        fromVMText.setText(datas.get("OOPS_VM_PATH_IN").getStringValue());
+        toVMText.setText(datas.get("OOPS_VM_PATH_OUT").getStringValue());
+        
+        String value = cCmd.get("-c");
+            cButton.setSelected(value != null);
+        value = cCmd.get("-s");
+            sButton.setSelected(value != null);
+        value = cCmd.get("-i");
+            iButton.setSelected(value != null);
+        value = cCmd.get("-l");
+            lButton.setSelected(value != null);        
+        value = cCmd.get("-hs");
+            hsButton.setValue((value!=null)?Integer.parseInt(value) :100);
+        value = cCmd.get("-ss");
+            ssButton.setValue((value!=null)?Integer.parseInt(value) :100);
+    }
+
+    private void setOOPSVMParameters() {
+        String value = vmCmd.get("-i");
+            iVMButton.setSelected(value != null);
+        value = vmCmd.get("-m");
+            mVMButton.setSelected(value != null);
+        value = vmCmd.get("-r");
+            rVMButton.setSelected(value != null);
+            //TODO richtige parameter finden
+            
+        value = vmCmd.get("-2");
+        if(value != null){
+            asBG.setSelected(as2Button.getModel(), true);
+        }else{
+            value = vmCmd.get("-1");
+            if(value != null){
+                asBG.setSelected(as1Button.getModel(), true);
+            }else{
+                asBG.setSelected(asnButton.getModel(), true);
+            }
+        }
+        
+        value = vmCmd.get("-f2");
+        if(value != null){
+            asBG.setSelected(r2UpButton.getModel(), true);
+        }else{
+            value = vmCmd.get("-b2");
+            if(value != null){
+                asBG.setSelected(r2DownButton.getModel(), true);
+            }else{
+                asBG.setSelected(r2NoneButton.getModel(), true);
+            }
+        }
+        
+        value = vmCmd.get("-f4");
+        if(value != null){
+            asBG.setSelected(r2UpButton.getModel(), true);
+        }else{
+            value = vmCmd.get("-b4");
+            if(value != null){
+                asBG.setSelected(r2DownButton.getModel(), true);
+            }else{
+                asBG.setSelected(r2NoneButton.getModel(), true);
+            }
         }
     }
 }

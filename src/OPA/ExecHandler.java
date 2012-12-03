@@ -4,40 +4,34 @@
  */
 package OPA;
 
+import OPA.Object.ObjectHandler;
+import OPA.Output.ConsoleHandler;
 import java.awt.Color;
 import java.io.*;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Scanner;
-import javax.swing.JEditorPane;
 
 /**
  *
  * @author Dirk
  */
 public class ExecHandler {
-    ConsoleHandler outputConsole;
-    ConsoleHandler errorConsole;
-    private ConsoleHandler deadConsole;
-    
     Process execProcess;
     ProcessBuilder builder;
     
-    ConfigHandler cfgHandler;
-    JEditorPane jPane;
-    
-    LinkedList<String> oopsFiles = new LinkedList<String>();
+    ObjectHandler objHandler;
+    ConsoleHandler console;
     
     BufferedWriter writeStream;
-    public ExecHandler(ConfigHandler cfgHandler, JEditorPane jPane, LinkedList<String> files){
-        this.cfgHandler = cfgHandler;
-        this.jPane = jPane;
-        this.oopsFiles = files;
+    public ExecHandler(LinkedList<String> files, ObjectHandler objHandler, ConsoleHandler console){
+        this.objHandler = objHandler;
+        this.console = console;
         this.builder = new ProcessBuilder();
-        this.deadConsole = new ConsoleHandler(null, jPane, Color.RED);
     }
     
     public void ioManuell(String input){
-        if (!oopsFiles.isEmpty()){
+        if (!objHandler.getOOPSFiles().isEmpty()){
             try {
                 writeStream.write(input);
                 writeStream.flush();
@@ -46,14 +40,14 @@ public class ExecHandler {
         }
     }
     public boolean execManuell(){
-        if (oopsFiles.isEmpty()){
+        if (objHandler.getOOPSFiles().isEmpty()){
             return false;
         }else{
-            String fileName = oopsFiles.getFirst();
-            if(oopsFiles.size()>1){
+            String fileName = objHandler.getOOPSFiles().getFirst();
+            if(objHandler.getOOPSFiles().size()>1){
                 return false;
             }
-            builder.directory(new File(cfgHandler.getAttribute("OOP")));
+            builder.directory(new File(objHandler.getData("OOPS_PROGRAMM_PATH_OUT").getStringValue()));
             LinkedList<String> cmd = command(fileName);
             String cmdOut= "";
             for(String str: cmd){
@@ -65,22 +59,23 @@ public class ExecHandler {
                 writeStream = new BufferedWriter(new OutputStreamWriter(execProcess.getOutputStream()));
                 Scanner es = new Scanner( execProcess.getErrorStream()).useDelimiter( "\\z" );
                 Scanner os = new Scanner( execProcess.getInputStream()).useDelimiter( "\\z" );
-                outputConsole = new ConsoleHandler(os, jPane, Color.ORANGE);
-                errorConsole = new ConsoleHandler(es, jPane, Color.RED);
-                String[] attr = {"<p>","<b>"};
-                if(cfgHandler.getAttributeBoolean("FULL")){
-                    outputConsole.write("Exec:"+ cmdOut,Color.black,attr);
+                if(objHandler.getData("SHORT_NAME").getBooleanValue()){
+                   console.write("Exec: ",Color.CYAN.darker(),true);
+                   console.write(cmdOut+"\n",Color.black);
                 }else{
-                    outputConsole.write("Exec:"+ fileName,Color.black,attr);
+                    console.write("Exec: ",Color.CYAN.darker(),true);
+                    console.write(fileName+"\n",Color.black);
                 }
-                outputConsole.start();
-                //errorConsole.start();
+                console.addScanner(os, Color.BLUE.darker());
+                console.addScanner(es, Color.RED);
+                
             } catch (IOException e) {
-                String[] attr = {"<p>"};
-                if(cfgHandler.getAttributeBoolean("FULL")){
-                    deadConsole.write("ERROR Can't exec:"+cmdOut,Color.RED,attr);
+                if(objHandler.getData("SHORT_NAME").getBooleanValue()){
+                    console.write("ERROR",Color.CYAN.darker(), true);
+                    console.write("Can't exec: "+cmdOut+"\n",Color.RED);
                 }else{
-                    deadConsole.write("ERROR Can't exec:"+fileName,Color.RED,attr);
+                    console.write("ERROR",Color.CYAN.darker(), true);
+                    console.write("Can't exec: "+fileName+"\n",Color.RED);
                 }
             }
         }
@@ -88,29 +83,28 @@ public class ExecHandler {
     }
     
     public void abbort(){
-        if (!oopsFiles.isEmpty()){
+        if (!objHandler.getOOPSFiles().isEmpty()){
             execProcess.destroy();
         }
     }
 
     public boolean execAuto(){
-        if(oopsFiles.size()==0){
-             String[] attr = {"<p>"};
-             deadConsole.write("ERROR No selected OOPS-Program",Color.RED,attr);
+        if(objHandler.getOOPSFiles().size()==0){
+             console.write("ERROR ",Color.CYAN.darker(),true);
+             console.write("No selected OOPS-Program\n",Color.RED);
         }
-        for(String file : oopsFiles){
+        for(String file : objHandler.getOOPSFiles()){
             execAuto(file);
         }
         return true;
     }
     
     private void execAuto(String fileName){
-        IOHandler ioHandler = new IOHandler(fileName, cfgHandler,deadConsole);
-        if(ioHandler.getTestType() == IOHandler.TestType.EXECUTE){
-            String[] attri = {"<p>"};
-            errorConsole.write(fileName+".io hat anderen Testtyp.",Color.black,attri);
+        IOHandler ioHandler = new IOHandler(fileName, objHandler, console);
+        if(ioHandler.getTestType() != IOHandler.TestType.EXECUTE){
+            console.write(fileName+".io hat anderen Testtyp\n.",Color.CYAN.darker());
         }else{
-           builder.directory(new File(cfgHandler.getAttribute("OOP")));
+           builder.directory(new File(objHandler.getData("OOPS_PROGRAMM_PATH_OUT").getStringValue()));
             LinkedList<String> cmd = command(fileName);
             String[] tests = ioHandler.getTests();
             for(String test : tests){
@@ -120,13 +114,13 @@ public class ExecHandler {
                     execProcess = builder.start();
                     Scanner es = new Scanner( execProcess.getErrorStream()).useDelimiter( "\\z" );
                     Scanner outputStream = new Scanner( execProcess.getInputStream()).useDelimiter( "\\z" );
-                    errorConsole = new ConsoleHandler(es, jPane, Color.RED);
+                    console.addScanner(es);
 
                     writeStream = new BufferedWriter(new OutputStreamWriter(execProcess.getOutputStream()));  
                     try{
                         execProcess.exitValue();
                         while(outputStream.hasNext()){
-                            deadConsole.write(outputStream.next(),Color.RED);
+                            console.write(outputStream.next(),Color.RED);
                         }
                     }catch(IllegalThreadStateException e){
                         for(String line :testLines){
@@ -136,15 +130,16 @@ public class ExecHandler {
                         ioHandler.checkTest(test, outputStream);
                     }
                 } catch (IOException e) {
-                    String[] attri = {"<p>"};
                     String cmdOut = "";
                     for(String c :cmd){
                         cmdOut += c;
                     }
-                    if(cfgHandler.getAttributeBoolean("FULL")){
-                        errorConsole.write("ERROR\n Can't exec:"+cmdOut,Color.RED,attri);
+                    if(objHandler.getData("SHORT_NAME").getBooleanValue()){
+                        console.write("ERROR ",Color.CYAN.darker(),true);
+                        console.write("Can't exec:"+cmdOut+"\n",Color.RED);
                     }else{
-                        errorConsole.write("ERROR\n Can't exec:"+fileName,Color.RED,attri);
+                        console.write("ERROR ",Color.CYAN.darker(),true);
+                        console.write("Can't exec:"+fileName+"\n",Color.RED);
                     }
                 }
             }
@@ -155,15 +150,17 @@ public class ExecHandler {
         LinkedList<String> cmd = new LinkedList<String>();
         cmd.add("java");
         cmd.add("-cp");
-        cmd.add(cfgHandler.getAttribute("VMOP"));
-        cmd.add(cfgHandler.getAttribute("OOPSVM_NAME"));
-        String as = cfgHandler.getAttribute("-AS");
-        if(as.equals("1")){
-            cmd.add("-1");
-        }else if(as.equals("2")){
-            cmd.add("-2");
+        cmd.add(objHandler.getData("OOPS_VM_PATH_OUT").getStringValue());
+        cmd.add(objHandler.getData("OOPS_VM_NAME").getStringValue());
+        HashMap<String,String> cmds = objHandler.getData("OOPSVM_PARAMETERS").getValues();
+        for(String key : cmds.keySet()){
+            cmd.add(key);
+            String val = cmds.get(key);
+            if(val!=null){
+                cmd.add(val);
+            }
         }
-        cmd.add(fileName+cfgHandler.getAttribute("KOMPILE_NAME"));
+        cmd.add(fileName+objHandler.getData("OOPS_KOMPILE_TYPE").getStringValue());
         return cmd;
     }
 }

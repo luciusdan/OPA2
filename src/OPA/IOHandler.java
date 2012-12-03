@@ -1,5 +1,7 @@
 package OPA;
 
+import OPA.Object.ObjectHandler;
+import OPA.Output.ConsoleHandler;
 import java.awt.Color;
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
@@ -23,11 +25,11 @@ public class IOHandler {
     ConsoleHandler consoleHandler;
     private LinkedList<String[]> ios;
     
-    public IOHandler(String fileName , ConfigHandler cfgHandler, ConsoleHandler consoleHandler){
+    public IOHandler(String fileName, ObjectHandler objHandler, ConsoleHandler consoleHandler){
         ios= new LinkedList<String[]>();
         this.consoleHandler = consoleHandler;
         try {
-            FileReader fr = new FileReader(cfgHandler.getAttribute("OIP")+System.getProperty("file.separator")+fileName+".io");
+            FileReader fr = new FileReader(objHandler.getData("OOPS_PROGRAMM_PATH_IN").getStringValue()+System.getProperty("file.separator")+fileName+".io");
             BufferedReader br = new BufferedReader(fr);  
             try {
                 String line = br.readLine();
@@ -47,8 +49,8 @@ public class IOHandler {
                         testType = TestType.OTHER;
                     }
                 }else{
-                    String[] attr = {"<p>"};
-                    consoleHandler.write("IO ERROR: kann ErrorType von "+fileName+".io nicht lesen!",Color.RED,attr);
+                    consoleHandler.write("IO ERROR: ", Color.CYAN.darker(), true);
+                    consoleHandler.write("kann ErrorType von "+fileName+".io nicht lesen!\n",Color.RED);
                 }
                 line = br.readLine();
                 if(testType != TestType.OTHER){
@@ -66,22 +68,23 @@ public class IOHandler {
                                 for (String s : lineFields){
                                     out += ", "+s;
                                 }
-                                String[] attr = {"<p>"};
-                               consoleHandler.write("IO ERROR: kann Zeile nicht verstehen:",Color.RED,attr);
-                               consoleHandler.write(out,Color.ORANGE);
+                               consoleHandler.write("IO ERROR :",Color.CYAN.darker(),true);
+                               consoleHandler.write("kann Zeile nicht verstehen:",Color.RED);
+                               consoleHandler.write(out+"\n",Color.ORANGE);
                             }
                         }
                         line = br.readLine();
                     }
+               
                 }
 
             } catch (IOException ex) {
-                String[] attr = {"<p>"};
-                consoleHandler.write("IO ERROR: kann "+fileName+".io nicht öffnen.",Color.RED,attr);
+                consoleHandler.write("IO ERROR: ",Color.CYAN.darker(),true);
+                consoleHandler.write("kann "+fileName+".io nicht öffnen.\n",Color.RED);
             }
         } catch (FileNotFoundException ex) {
-            String[] attr = {"<p>"};
-            consoleHandler.write("IO ERROR: kann "+fileName+".io nicht finden.",Color.RED,attr);
+            consoleHandler.write("IO ERROR: ",Color.CYAN.darker(),true);
+            consoleHandler.write ("kann "+fileName+".io nicht finden.\n",Color.RED);
         }
     }
     
@@ -109,64 +112,55 @@ public class IOHandler {
         String[] lines= ios.get(index)[2].split("\\\\n ");
         
         //Schreibe Testheader
-        String[] attr = {"<p>"};
-        consoleHandler.write("Test("+(index+1)+")["+in+"]: ",Color.BLACK,attr);
-        System.out.println("-------- Test("+(index+1)+"):"+in+" --------");
+        consoleHandler.write("Test("+(index+1)+")["+in+"]: ",Color.BLACK,true);
         
         //wird keine Ausgabe erwartet?
         if(ios.get(index)[2].equals("")){
             if(os.hasNext()){
-                ConsoleHandler errorConsole= new ConsoleHandler(os,consoleHandler.getConsole(), Color.BLACK);
-                String[] attr1 = {"<p>"};
-                errorConsole.write("FEHLER",Color.RED,attr1);
-                String[] attr2 = {"<br>"};
-                consoleHandler.write("erwarte keine Ausgabe, bekomme aber:",Color.MAGENTA,attr2);
-                errorConsole.start();
+                consoleHandler.write("FEHLER",Color.CYAN.darker(),true);
+                consoleHandler.write("erwarte keine Ausgabe, bekomme aber:\n",Color.RED.darker());
+                consoleHandler.addScanner(os);
             }else{
-                consoleHandler.write("Erfolgreich",Color.BLACK);
+                consoleHandler.write("Erfolgreich\n",Color.BLACK);
             }
         }else
         if(ios.get(index)[1].equals("ERROR")){
         System.out.println("ERROR Test");    
             for(String line: lines){
-                System.out.print("want:"+line);
                 String isLine = os.nextLine();
-                System.out.println(" become:"+isLine);
                 consoleHandler.write("bekomme:\" "+isLine+"\" erwarte: \""+line+"\"",Color.BLACK);
             }
         }else{
             System.out.println("VALID Test");
             boolean errors = false;
+            LinkedList<String> correct = new LinkedList<String>();
             for(String line: lines){
-                System.out.print("want:"+line);
                 try{
                     String isLine= os.nextLine();
-                System.out.println(" become:"+isLine);
-                if(isLine.equals(line)){
-                    System.out.println("No div");
-                }else{
-                    System.out.println("Find div!");
-                    String[] attr1 = {"<p>"};
-                    consoleHandler.write("FEHLER",Color.RED,attr1);
-                    String[] attr2 = {"<br>"};
-                    consoleHandler.write("erwarte:",Color.MAGENTA,attr2);
-                    for(String lime : lines){
-                    consoleHandler.write(lime,Color.BLACK,attr2);
+                    if(isLine.equals(line)){
+                        correct.add(line);
+                    }else{
+                        consoleHandler.write("FEHLER\n",Color.RED,true);
+                        consoleHandler.write("erwarte:",Color.MAGENTA);
+                        for(String lime : lines){
+                            consoleHandler.write(lime+"\n",Color.BLACK);
+                        }
+                        consoleHandler.write("bekomme:\n",Color.MAGENTA);
+                        for(String cLine :correct){
+                            consoleHandler.write(cLine,Color.BLACK);
+                        }
+                        consoleHandler.write(isLine,Color.RED);
+                        consoleHandler.addScanner(os);
+                        errors = true;
+                        break;
                     }
-                    consoleHandler.write("bekomme:",Color.MAGENTA,attr2);
-                    ConsoleHandler errorConsole= new ConsoleHandler(os,consoleHandler.getConsole(), Color.BLACK);
-                    errorConsole.write(isLine+"\n",Color.BLACK);
-                    errorConsole.start();
-                    errors = true;
-                    break;
-                }
                 }catch(NoSuchElementException e){
                 //TODO was passiert wenn zuwenig zeilen
                 }
 
             }
             if(!errors){
-                consoleHandler.write("Erfolgreich",Color.BLACK);
+                consoleHandler.write("Erfolgreich\n",Color.BLACK);
             }
             
         }
