@@ -21,7 +21,7 @@ public class IOHandler {
         COMPILE,EXECUTE,OTHER
     }
     private TestType testType;
-    private String trenner ="@@";
+    private static String trenner ="@@";
     ConsoleHandler consoleHandler;
     private LinkedList<String[]> ios;
     

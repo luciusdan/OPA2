@@ -18,8 +18,8 @@ import java.util.LinkedList;
  * @author Dirk
  */
 public class ConfigHandler {
-    private String trenner ="@@"; 
-    private String configName = "test.cfg";
+    private static String trenner ="@@"; 
+    private static String configName = "config.cfg";
     private LinkedList<LineInfo> lineInfos;
     
     public ConfigHandler(){
